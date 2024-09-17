@@ -1,0 +1,13 @@
+# Environment
+.env
+venv/
+.vscode/
+**/.DS_Store
+
+# Data
+input/
+output/
+logs/
+
+# Python
+**/*.pyc
