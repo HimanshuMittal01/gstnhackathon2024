@@ -40,7 +40,7 @@ def load_dataset(
     return df_X_train, df_y_train, df_X_test, df_y_test
 
 
-def feature_engineering(df):
+def feature_engineering(df, assets_filepath, training=False):
     # 0 is the most frequent value in 'Column0'
     df.loc[df["Column0"].isna()] = 0
 
@@ -76,9 +76,38 @@ def feature_engineering(df):
     # Add function of column 6 and 8
     df["Column6_8"] = df['Column6'] * df['Column8']
 
+    # Load assets is not training
+    assets = {
+        'feature_cols': [],
+        'isoforests': {},
+    }
+    if not training:
+        assets = joblib.load(assets_filepath)
+
     # Make outlier indicator
     for col in ["Column6", "Column7", "Column8"]:
-        df[f'{col}_isof'] = IsolationForest(random_state=42).fit_predict(df[[col]])
+        if training:
+            isoforest = IsolationForest(random_state=42)
+            isoforest.fit(df[[col]])
+            df[f'{col}_isof'] = isoforest.predict(df[[col]])
+            assets["isoforests"][col] = isoforest
+        
+        else:
+            df[f'{col}_isof'] = assets["isoforests"][col].predict(df[[col]])
+    
+    # Select features
+    if training:
+        feature_cols = list(set(df.columns) - {'ID', 'target', 'Column9'})
+        assets["feature_cols"] = feature_cols
+    else:
+        feature_cols = assets['feature_cols']
+    df = df[feature_cols]
+
+    # Save assets if training
+    if training:
+        os.makedirs(os.path.dirname(assets_filepath), exist_ok=True)
+        joblib.dump(assets, assets_filepath)
+        logger.info(f'Saved assets at {assets_filepath}')
 
     return df
 
@@ -88,6 +117,7 @@ def prepare_dataset(
     trainY: str,
     testX: str,
     testY: str,
+    assets_filepath: str,
 ) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     # Load dataset
     df_X_train, df_y_train, df_X_test, df_y_test = load_dataset(
@@ -98,16 +128,11 @@ def prepare_dataset(
     )
 
     # Do preprocessing
-    df_X_train = feature_engineering(df_X_train)
-    df_X_test = feature_engineering(df_X_test)
-
-    # Select features
-    feature_cols = list(set(df_X_train.columns) - {'ID', 'Column9'})
-    X_train, y_train = df_X_train[feature_cols], df_y_train['target']
-    X_test, y_test = df_X_test[feature_cols], df_y_test['target']
+    df_X_train = feature_engineering(df_X_train, assets_filepath, training=True)
+    df_X_test = feature_engineering(df_X_test, assets_filepath, training=False)
 
     # Return
-    return X_train, y_train, X_test, y_test
+    return df_X_train, df_y_train['target'], df_X_test, df_y_test['target']
 
 
 def create_model() -> tuple[list[ClassifierMixin], ClassifierMixin]:
@@ -310,6 +335,7 @@ def save_models(
         },
         filename=output_filepath
     )
+    logger.info(f'Saved model at {output_filepath}')
 
 
 if __name__ == '__main__':
@@ -319,7 +345,8 @@ if __name__ == '__main__':
     parser.add_argument('--trainY', default='input/Train_60/Y_Train_Data_Target.csv')
     parser.add_argument('--testX', default='input/Test_20/X_Test_Data_Input.csv')
     parser.add_argument('--testY', default='input/Test_20/Y_Test_Data_Target.csv')
-    parser.add_argument('--output-filepath', default='output/models/stackEnsembleV1.joblib')
+    parser.add_argument('--model-filepath', default='models/stackEnsembleV1.joblib')
+    parser.add_argument('--assets-filepath', default='models/isoforestsFS.joblib')
     args = parser.parse_args()
 
     ####################### PREPARE DATASET #######################
@@ -331,6 +358,7 @@ if __name__ == '__main__':
         trainY = args.trainY,
         testX = args.testX,
         testY = args.testY,
+        assets_filepath=args.assets_filepath
     )
     logger.info(f'Dataset prepared in {time.time() - _st_time:.2f}s')
 
@@ -362,6 +390,6 @@ if __name__ == '__main__':
     save_models(
         primary_estimators=primary_estimators,
         final_estimator=final_estimator,
-        output_filepath=args.output_filepath
+        output_filepath=args.model_filepath,
     )
     logger.info(f'Export complete in {time.time() - _st_time:.2f}s')
