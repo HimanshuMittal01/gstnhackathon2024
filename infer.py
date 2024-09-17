@@ -137,7 +137,7 @@ def infer(
     y_pred = np.zeros(X.shape[0])
     
     y_prob[~mask] = final_estimator.predict_proba(X_dash)[:, 1]
-    y_pred[~mask] = (y_prob[~mask] > threshold).astype(np.int32)
+    y_pred = (y_prob >= threshold).astype(np.int32)
 
     return y_prob, y_pred
 
