@@ -4,9 +4,10 @@ venv/
 .vscode/
 **/.DS_Store
 
-# Data
+# Data and Assets
 input/
 output/
+models/
 logs/
 
 # Python
