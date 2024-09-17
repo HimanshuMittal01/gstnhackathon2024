@@ -16,7 +16,7 @@ import xgboost as xgb
 from sklearn.base import ClassifierMixin
 from sklearn.linear_model import LogisticRegressionCV
 from sklearn.ensemble import RandomForestClassifier, IsolationForest
-from sklearn.metrics import roc_auc_score
+from sklearn.metrics import average_precision_score
 from catboost import CatBoostClassifier
 from lightgbm import LGBMClassifier
 
@@ -155,10 +155,10 @@ def create_model() -> tuple[list[ClassifierMixin], ClassifierMixin]:
             'name': 'rf2',
             'sampling': True,
             'model': RandomForestClassifier(**{
-                "n_estimators": 200,
+                "n_estimators": 400,
                 "max_depth": 25,
-                "min_samples_split": 2,
-                "min_samples_leaf": 3,
+                "min_samples_split": 9,
+                "min_samples_leaf": 2,
                 "random_state": 42,
             })
         },
@@ -193,6 +193,21 @@ def create_model() -> tuple[list[ClassifierMixin], ClassifierMixin]:
             })
         },
         {
+            'name': 'xgb3',
+            'sampling': True,
+            'model': xgb.XGBClassifier(**{
+                "lambda": 3.5252596719136547e-07,
+                "alpha": 3.091704773040277e-06,
+                "subsample": 0.728324722716756,
+                "colsample_bytree": 0.8566104914950033,
+                "max_depth": 9,
+                "min_child_weight": 3,
+                "eta": 0.2944357417345176,
+                "gamma": 0.20623355492809325,
+                "random_state": 42
+            })
+        },
+        {
             'name': 'catb1',
             'sampling': False,
             'model': CatBoostClassifier(**{
@@ -216,6 +231,20 @@ def create_model() -> tuple[list[ClassifierMixin], ClassifierMixin]:
                 "l2_leaf_reg": 3e-2,
                 "random_strength": 4e-5,
                 "bagging_temperature": 0.45,
+                "silent": True,
+                "allow_writing_files": False
+            })
+        },
+        {
+            'name': 'catb3',
+            'sampling': True,
+            'model': CatBoostClassifier(**{
+                "iterations": 867,
+                "learning_rate": 0.025852814454489524,
+                "depth": 10,
+                "l2_leaf_reg": 17.468236424235297,
+                "random_strength": 0.02082667862813585,
+                "bagging_temperature": 0.05805895132755018,
                 "silent": True,
                 "allow_writing_files": False
             })
@@ -260,7 +289,7 @@ def create_model() -> tuple[list[ClassifierMixin], ClassifierMixin]:
         },
     ]
 
-    final_estimator = LogisticRegressionCV(cv=5, Cs=1, random_state=0)
+    final_estimator = LogisticRegressionCV(cv=5, Cs=1, random_state=0, scoring='average_precision')
 
     return primary_estimators, final_estimator
 
@@ -302,9 +331,9 @@ def train(
         
         # Score model
         y_probs = estimator['model'].predict_proba(X_test[~test_mask])[:, 1]
-        score = roc_auc_score(y_score=y_probs, y_true=y_test[~test_mask])
+        score = average_precision_score(y_score=y_probs, y_true=y_test[~test_mask])
         
-        logger.info(f'ROC-AUC on masked test dataset --> {estimator['name']}: {score:.4f}')
+        logger.info(f'PR-AUC on masked test dataset --> {estimator['name']}: {score:.4f}')
     
     # Predict using primary estimators
     X_train_dash = np.vstack(tuple(estimator['model'].predict_proba(X_train)[:, 1] for estimator in primary_estimators)).T
@@ -314,8 +343,8 @@ def train(
     final_estimator.fit(X_train_dash, y_train)
 
     logger.info(f"Final estimator CV Score : {final_estimator.score(X_train_dash[~train_mask], y_train[~train_mask]):.4f}")
-    logger.info(f"Final estimator ROC-AUC (train) : {roc_auc_score(y_score=final_estimator.predict_proba(X_train_dash[~train_mask])[:, 1], y_true=y_train[~train_mask]):.4f}")
-    logger.info(f"Final estimator ROC-AUC (test) : {roc_auc_score(y_score=final_estimator.predict_proba(X_test_dash[~test_mask])[:, 1], y_true=y_test[~test_mask]):.4f}")
+    logger.info(f"Final estimator PR-AUC (train) : {average_precision_score(y_score=final_estimator.predict_proba(X_train_dash[~train_mask])[:, 1], y_true=y_train[~train_mask]):.4f}")
+    logger.info(f"Final estimator PR-AUC (test) : {average_precision_score(y_score=final_estimator.predict_proba(X_test_dash[~test_mask])[:, 1], y_true=y_test[~test_mask]):.4f}")
 
 
 def save_models(
@@ -346,7 +375,7 @@ if __name__ == '__main__':
     parser.add_argument('--testX', default='input/Test_20/X_Test_Data_Input.csv')
     parser.add_argument('--testY', default='input/Test_20/Y_Test_Data_Target.csv')
     parser.add_argument('--model-filepath', default='models/stackEnsembleV1.joblib')
-    parser.add_argument('--assets-filepath', default='models/isoforestsFS.joblib')
+    parser.add_argument('--assets-filepath', default='models/isoforestsFS1.joblib')
     args = parser.parse_args()
 
     ####################### PREPARE DATASET #######################

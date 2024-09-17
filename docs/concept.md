@@ -14,3 +14,4 @@ My approach is to:
 7. Feature selection based on feature importance
 8. Make submission docs.
 
+*Note: I did not experiment with deep learning (DL) models because I think that the training data size is not enough and it has quite less variation within the columns.*
