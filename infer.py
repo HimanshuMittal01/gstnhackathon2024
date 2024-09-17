@@ -17,7 +17,12 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.base import ClassifierMixin
 from sklearn.ensemble import IsolationForest
-from sklearn.metrics import classification_report, roc_auc_score, confusion_matrix
+from sklearn.metrics import (
+    average_precision_score,
+    classification_report,
+    roc_auc_score,
+    confusion_matrix,
+)
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)
@@ -147,13 +152,17 @@ def evaluate(
     y_pred: pd.DataFrame,
     Y: Optional[pd.DataFrame] = None,
 ) -> None:
+    # Average precision score
+    print(f"\nAP score: {average_precision_score(y_score=y_prob, y_true=Y):.6f}")
+
     # ROC-AUC score
-    print(f"\nROC-AUC score: {roc_auc_score(y_score=y_prob, y_true=Y)}")
+    print(f"\nROC-AUC score: {roc_auc_score(y_score=y_prob, y_true=Y):.6f}")
 
     # Classification report
     print("\nClassification Report:\n")
     print(classification_report(y_pred=y_pred, y_true=Y))
 
+    # Confusion Matrix
     sns.heatmap(confusion_matrix(y_pred=y_pred, y_true=Y), annot=True, fmt="g")
     plt.title("Confusion matrix (Test)")
     plt.xlabel("Model")
