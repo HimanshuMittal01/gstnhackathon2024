@@ -160,7 +160,7 @@ def evaluate(
 
     # Classification report
     print("\nClassification Report:\n")
-    print(classification_report(y_pred=y_pred, y_true=Y))
+    print(classification_report(y_pred=y_pred, y_true=Y, digits=6))
 
     # Confusion Matrix
     sns.heatmap(confusion_matrix(y_pred=y_pred, y_true=Y), annot=True, fmt="g")
@@ -212,6 +212,7 @@ if __name__ == '__main__':
 
     X['prediction'] = y_pred
     X['confidence'] = y_prob
+    os.makedirs(os.path.dirname(args.savepath), exist_ok=True)
     X.to_csv(args.savepath, index=False)
 
     ####################### EVALUATE PERFORMANCE #######################
