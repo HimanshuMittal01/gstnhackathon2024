@@ -2,6 +2,10 @@
 
 Given the training and testing datasets, the objective is to build a model which predict the 'target' binary variable in the test dataset without any domain knowledge.
 
+More details can be found in the
+- [Concept doc](docs/concept.md)
+- [Project report](docs/Project%20Report%20-%20GSTN%20Analytics%20Hackathon%202024.pdf)
+
 The code achieves a performance with a **Average Precision (AP) score of 0.9407** and the following metrics:
 
 - **PR-AUC**: 0.940762
@@ -35,6 +39,7 @@ To perform inference, you need to download the trained models and artifacts. Alt
 The following resources are saved on Google Drive:
 - Pre-trained model 'stackEnsembleV2.joblib' (for classification) [Download here](https://drive.google.com/file/d/1Zz2T2_HJUC14Ebf0GWUKwYPpp4q1kWNw/view?usp=drive_link) (~400 MB)
 - Isolation Forests 'isoforestsFS2.joblib' (for feature enginnering) [Download here](https://drive.google.com/file/d/1J6oS9HeL_IoS4OpgvgD9oU9h1CM91YRF/view?usp=drive_link) (~2 MB)
+- Prediction (in csv) on the given test dataset [Download here](https://drive.google.com/file/d/168a5F4KMIDVOQCpZbvAfING0H-XlhoUH/view?usp=drive_link) (~66 MB)
 
 If you choose to train locally, ensure you have the appropriate datasets and configurations as mentioned below in the project documentation.
 
@@ -107,10 +112,3 @@ The provided model trained using this script achieves the following evaluation m
 |-------|-----------|----------|----------|
 |   0   | 0.986995  | 0.988069 | 0.987532 |
 |   1   | 0.884193  | 0.874949 | 0.879547 |
-
-## Dev Notes
-
-TODO:
-- Checksum
-- Video Link
-- Report
