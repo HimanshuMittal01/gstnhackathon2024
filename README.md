@@ -23,11 +23,6 @@ The code achieves a performance with a **Average Precision (AP) score of 0.9407*
 
 Follow below steps to perform predictions on a new dataset:
 
-You can clone the repo and zip the folder to verify the checksum or use 'Download ZIP' option in the GitHub.
-
-*If you're cloning using CLI, please don't include any other data or model files while converting into zip to verify the checksum*
-
-
 ### 1. Setup virtual environment
 
 Ensure you are using Python >= 3.12.
