@@ -1,7 +1,7 @@
 # GSTN Analytics Hackathon 2024
 
-> Important Note: 
-Use `submission/project-himanshu.zip` to verify the checksum.
+> ### IMPORTANT NOTE:
+> Use `submission/project-himanshu.zip` to verify the checksum: 734bfc240d3eed36de132aaccd4424f86f88adeb23afb102c0f0442e19210f75
 
 Given the training and testing datasets, the objective is to build a model which predict the 'target' binary variable in the test dataset without any domain knowledge.
 
