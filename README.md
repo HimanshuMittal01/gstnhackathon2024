@@ -51,7 +51,7 @@ To perform inference, you need to download the trained models and artifacts. Alt
 The following resources are saved on Google Drive:
 - Pre-trained model 'stackEnsembleV2.joblib' (for classification) [Download here](https://drive.google.com/file/d/1Zz2T2_HJUC14Ebf0GWUKwYPpp4q1kWNw/view?usp=drive_link) (~400 MB)
 - Isolation Forests 'isoforestsFS2.joblib' (for feature enginnering) [Download here](https://drive.google.com/file/d/1J6oS9HeL_IoS4OpgvgD9oU9h1CM91YRF/view?usp=drive_link) (~2 MB)
-- Prediction (in csv) on the given test dataset [Download here](https://drive.google.com/file/d/168a5F4KMIDVOQCpZbvAfING0H-XlhoUH/view?usp=drive_link) (~66 MB)
+- Prediction (in csv) on the given test dataset [Download here](https://drive.google.com/file/d/168a5F4KMIDVOQCpZbvAfING0H-XlhoUH/view?usp=drive_link) (~10 MB)
 
 If you choose to train locally, ensure you have the appropriate datasets and configurations as mentioned below in the project documentation.
 

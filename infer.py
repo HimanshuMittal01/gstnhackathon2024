@@ -107,6 +107,7 @@ def prepare_dataset(
 ) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     # Load dataset
     X = pd.read_csv(X)
+    X_ids = X[['ID']]
 
     # Do preprocessing
     X = feature_engineering(X, assets_filepath, training=False)
@@ -117,7 +118,7 @@ def prepare_dataset(
         Y = Y['target']
 
     # Return
-    return X, Y
+    return X, Y, X_ids
 
 
 def load_model(model_filepath: str) -> tuple[list[ClassifierMixin], ClassifierMixin]:
@@ -168,7 +169,7 @@ def evaluate(
     fig, ax = plt.subplots(figsize=(12, 8))
     sns.heatmap(np.eye(2), annot=cm, fmt='g', annot_kws={'size': 50},
                 cmap=sns.color_palette(['tomato', 'palegreen'], as_cmap=True), cbar=False,
-                yticklabels=['1', '0'], xticklabels=['1', '0'], ax=ax)
+                yticklabels=['0', '1'], xticklabels=['0', '1'], ax=ax)
     ax.xaxis.tick_top()
     ax.xaxis.set_label_position('top')
     ax.tick_params(labelsize=20, length=0)
@@ -177,7 +178,7 @@ def evaluate(
     ax.set_xlabel('Predicted Values', size=20)
     ax.set_ylabel('Actual Values', size=20)
 
-    additional_texts = ['(True Positive)', '(False Negative)', '(False Positive)', '(True Negative)']
+    additional_texts = ['(True Negative)', '(False Positive)', '(False Negative)', '(True Positive)']
     for text_elt, additional_text in zip(ax.texts, additional_texts):
         ax.text(*text_elt.get_position(), '\n' + additional_text, color=text_elt.get_color(),
                 ha='center', va='top', size=24)
@@ -200,7 +201,7 @@ if __name__ == '__main__':
     logger.info('Preparing dataset for the inference..')
     _st_time = time.time()
 
-    X, Y = prepare_dataset(
+    X, Y, X_ids = prepare_dataset(
         X = args.X,
         Y = args.Y,
         assets_filepath=args.assets_filepath
@@ -225,10 +226,10 @@ if __name__ == '__main__':
         threshold=args.threshold,
     )
 
-    X['prediction'] = y_pred
-    X['confidence'] = y_prob
+    X_ids['prediction'] = y_pred
+    X_ids['confidence'] = y_prob
     os.makedirs(os.path.dirname(args.savepath), exist_ok=True)
-    X.to_csv(args.savepath, index=False)
+    X_ids.to_csv(args.savepath, index=False)
 
     ####################### EVALUATE PERFORMANCE #######################
     if Y is not None:
