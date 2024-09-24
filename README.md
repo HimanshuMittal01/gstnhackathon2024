@@ -1,5 +1,8 @@
 # GSTN Analytics Hackathon 2024
 
+> Important Note: 
+Use `submission/project-himanshu.zip` to verify the checksum.
+
 Given the training and testing datasets, the objective is to build a model which predict the 'target' binary variable in the test dataset without any domain knowledge.
 
 More details can be found in the
@@ -11,6 +14,10 @@ The code achieves a performance with a **Average Precision (AP) score of 0.9407*
 - **PR-AUC**: 0.940762
 - ROC-AUC: 0.995028
 - Accuracy: 0.977403
+
+<p align="center">
+  <img src="docs/cm_test.png?raw=true" alt="Sublime's custom image" width=400 />
+</p>
 
 ## How to run
 

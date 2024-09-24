@@ -162,11 +162,26 @@ def evaluate(
     print("\nClassification Report:\n")
     print(classification_report(y_pred=y_pred, y_true=Y, digits=6))
 
-    # Confusion Matrix
-    sns.heatmap(confusion_matrix(y_pred=y_pred, y_true=Y), annot=True, fmt="g")
-    plt.title("Confusion matrix (Test)")
-    plt.xlabel("Model")
-    plt.ylabel("Ground Truth")
+    # Confusion Matrix: https://stackoverflow.com/a/70098510
+    sns.set(style='white')
+    cm = confusion_matrix(y_pred=y_pred, y_true=Y)
+    fig, ax = plt.subplots(figsize=(12, 8))
+    sns.heatmap(np.eye(2), annot=cm, fmt='g', annot_kws={'size': 50},
+                cmap=sns.color_palette(['tomato', 'palegreen'], as_cmap=True), cbar=False,
+                yticklabels=['1', '0'], xticklabels=['1', '0'], ax=ax)
+    ax.xaxis.tick_top()
+    ax.xaxis.set_label_position('top')
+    ax.tick_params(labelsize=20, length=0)
+
+    ax.set_title('Confusion Matrix', size=24, pad=20)
+    ax.set_xlabel('Predicted Values', size=20)
+    ax.set_ylabel('Actual Values', size=20)
+
+    additional_texts = ['(True Positive)', '(False Negative)', '(False Positive)', '(True Negative)']
+    for text_elt, additional_text in zip(ax.texts, additional_texts):
+        ax.text(*text_elt.get_position(), '\n' + additional_text, color=text_elt.get_color(),
+                ha='center', va='top', size=24)
+    plt.tight_layout()
     plt.show()
 
 
